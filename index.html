@@ -1,66 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>简单的demo</title>
-	<style type="text/css">
-		*{
-			margin: 0 auto;
-			padding: 0;
-		}
-		#baidu_map{
-			width: 1000px;
-			height: 700px;
-		}
-	</style>
+    <title>简单的demo</title>
+    <style type="text/css">
+        *{
+            margin: 0 auto;
+            padding: 0;
+        }
+        #baidu_map{
+            width: 1000px;
+            height: 700px;
+        }
+        button{
+            position: absolute;
+            top:200px;
+            left: 20px;
+            width: 66px;
+            height: 40px;
+        }
+    </style>
 </head>
 <body>
-	<div id="baidu_map"></div>
-
+    <button onclick="playBack()">点击播放</button>
+    <div id="baidu_map"></div>
 </body>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=RBMT4U5cY8KTuIXyXb0ENDuB"></script>
 <script type="text/javascript">
-	var map = new BMap.Map("baidu_map");
-	map.centerAndZoom(new BMap.Point((116.125021+116.129702)/2, (38.708999+38.842078)/2), 13);
-	map.enableScrollWheelZoom(true);
+    
+    function playBack(){
+        drawAnimatedLines(p,"blue");
+    }
 
-	var p = [], infoWindow = [];
-	p.push(new BMap.Point(116.125021,38.708999));
-	p.push(new BMap.Point(116.125053,38.723754));
-	p.push(new BMap.Point(116.125541,38.728696));
-	p.push(new BMap.Point(116.126367,38.740296));
-	p.push(new BMap.Point(116.126664,38.745510));
-	p.push(new BMap.Point(116.127038,38.751877));
-	p.push(new BMap.Point(116.127146,38.764280));
-	p.push(new BMap.Point(116.130496,38.793855));
-	p.push(new BMap.Point(116.130592,38.809331));
-	p.push(new BMap.Point(116.130240,38.831536));
-	p.push(new BMap.Point(116.129702,38.842078));
+    function drawAnimatedLines(p_arr,color){
+        var i=0;
+        drawAnimatedLine(p_arr[i],p_arr[i+1],color);
+        
 
-	//var driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true}});
-	//driving.search(p[0], p[p.length-1],{waypoints:p.slice(1,p.length-1)});
-	var line = new BMap.Polyline(p);
-	line.setStrokeColor("red");
-	map.addOverlay(line);
-	for(var i=0;i<11;i++) ~function(){
-		var marker = new BMap.Marker(p[i]);
-		map.addOverlay(marker);              // 将标注添加到地图中
-		var opts = {
-			width : 160,     // 信息窗口宽度
-			height: 80,     // 信息窗口高度
-			title : "途径地点"+i , // 信息窗口标题
-			enableMessage:true,//设置允许信息窗发送短息
-			message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~"
-		}
-//		infoWindow.push(new BMap.InfoWindow("当前时速：40km/h", opts));  // 创建信息窗口对象 
-		var point = p[i];
-		var speed = i*10;
-		marker.addEventListener("click", function(){
-//			openInfoWindow_BD(map,new BMap.InfoWindow("当前时速：40km/h", opts),p[i])
-			map.openInfoWindow(new BMap.InfoWindow("当前时速："+speed+"km/h", opts),point); //开启信息窗口
-		});
+        function drawAnimatedLine(p_begin,p_end,color){
+            var animating = null;
+            var lng_len = p_end.lng - p_begin.lng,
+            lat_len = p_end.lat - p_begin.lat,
+            iv = 0,
+            s = 30;
+            line();
 
-	}()
-	
+            function line(){
+                if(iv>s){
+                    clearTimeout(animating);
+                    animating = null;
+                    i++;
+                    if( i < p_arr.length-1){
+                        drawAnimatedLine(p_arr[i],p_arr[i+1],color);
+                    }
+                }else{
+                    var p_temp = new BMap.Point( p_begin.lng+lng_len*iv/s , p_begin.lat+lat_len*iv/s );
+                    var line = new BMap.Polyline([p_begin,p_temp]);
+                    line.setStrokeColor(color);
+                    map.addOverlay(line);
+                    carMk.setPosition(p_temp);
+                    carMk.setRotation(90);
+                    iv++;
+                    animating = setTimeout(arguments.callee, 40);
+                }
+            }   
+        }
+    }
+
+    var map = new BMap.Map("baidu_map");
+    map.centerAndZoom(new BMap.Point((116.125021+116.129702)/2, (38.708999+38.842078)/2), 13);
+    map.enableScrollWheelZoom(true);
+
+    var p = [], infoWindow = [];
+    var loc = [[116.125021,38.708999],[116.125053,38.723754],[116.125541,38.728696],[116.126367,38.740296],[116.126664,38.745510],[116.127038,38.751877],[116.127146,38.764280],[116.130496,38.793855],[116.130592,38.809331],[116.130240,38.831536],[116.129702,38.842078]];
+
+    for(var i=0;i<loc.length;i++){
+        p.push(new BMap.Point(loc[i][0],loc[i][1]));
+    }
+    
+
+    for(var i=0;i<p.length;i++) ~function(){
+        var marker = new BMap.Marker(p[i]);
+        map.addOverlay(marker);              // 将标注添加到地图中
+        var opts = {
+            width : 160,     // 信息窗口宽度
+            height: 80,     // 信息窗口高度
+            title : "途径地点"+i , // 信息窗口标题
+            enableMessage:true,//设置允许信息窗发送短息
+            message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~"
+        }
+
+        var point = p[i];
+        var speed = i*10;
+        marker.addEventListener("click", function(){
+            map.openInfoWindow(new BMap.InfoWindow("当前时速："+speed+"km/h", opts),point); //开启信息窗口
+        });
+
+    }()
+
+    var myIcon = new BMap.Icon("images/car.png", new BMap.Size(52, 26), {    //小车图片
+        //offset: new BMap.Size(0, -5),    //相当于CSS精灵
+        imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
+    });
+    var carMk = new BMap.Marker(p[0],{icon:myIcon});
+    map.addOverlay(carMk);
 
 </script>
 </html>
