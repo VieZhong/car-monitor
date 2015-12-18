@@ -18,11 +18,17 @@
             width: 66px;
             height: 40px;
         }
+        #test{
+            position: absolute;
+            top:300px;
+            left: 20px;
+        }
     </style>
 </head>
 <body>
     <button onclick="playBack()">点击播放</button>
     <div id="baidu_map"></div>
+    <div id="test"><div>
 </body>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=RBMT4U5cY8KTuIXyXb0ENDuB"></script>
 <script type="text/javascript">
@@ -32,7 +38,7 @@
     }
 
     function drawAnimatedLines(p_arr,color){
-        var i=0;
+        var i=0, flickering = null;
         drawAnimatedLine(p_arr[i],p_arr[i+1],color);
         
 
@@ -43,7 +49,6 @@
             iv = 0,
             s = 30;
             line();
-
             function line(){
                 if(iv>s){
                     clearTimeout(animating);
@@ -59,6 +64,19 @@
                     map.addOverlay(line);
                     carMk.setPosition(p_temp);
                     carMk.setRotation(90);
+                    var distance = map.getDistance(centerPoint, p_temp);
+                    if(distance>4200){
+                        circle.setFillColor("blue");
+                        circle.setFillOpacity(0.3);
+                        flickering && clearInterval(flickering);
+                        flickering = null;
+                    }else{
+                        if(!flickering){
+                            flickering = setInterval("circle.getFillColor()=='red'? circle.setFillColor('blue'):circle.setFillColor('red');",600);
+                            circle.setFillColor('red');
+                            circle.setFillOpacity(0.5);
+                        }
+                    }
                     iv++;
                     animating = setTimeout(arguments.callee, 40);
                 }
@@ -67,7 +85,8 @@
     }
 
     var map = new BMap.Map("baidu_map");
-    map.centerAndZoom(new BMap.Point((116.125021+116.129702)/2, (38.708999+38.842078)/2), 13);
+    var centerPoint = new BMap.Point((116.125021+116.129702)/2, (38.708999+38.842078)/2);
+    map.centerAndZoom(centerPoint, 13);
     map.enableScrollWheelZoom(true);
 
     var p = [], infoWindow = [];
@@ -103,6 +122,10 @@
     });
     var carMk = new BMap.Marker(p[0],{icon:myIcon});
     map.addOverlay(carMk);
+
+    var circle = new BMap.Circle(centerPoint,4200,{fillColor:"blue", strokeWeight: 1 ,fillOpacity: 0.3, strokeOpacity: 0.3});
+    map.addOverlay(circle);
+
 
 </script>
 </html>
