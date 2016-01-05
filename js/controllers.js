@@ -21,7 +21,7 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http', '$log', function(
 		onRegisterApi: function(gridApi){
 	       	gridApi.selection.on.rowSelectionChanged($scope,function(row){
 	       		$scope.curdeviceId = row.entity.id;
-	       		$http.post('data/getGpsDatas.json',{id:$scope.curdeviceId}).
+	       		$http.get('data/getGpsDatas.json').
 					success(function(data) {
 						$scope.Map.addVerhicle(data);
 						$scope.Map.showPath($scope.curdeviceId);
