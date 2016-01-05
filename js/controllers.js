@@ -2,8 +2,13 @@ var monitorCtrls = angular.module('monitorCtrls', ['ui.grid','ui.grid.selection'
 
 monitorCtrls.controller("positionMonitor", ['$scope', '$http', '$log', function($scope, $http, $log) {
 
-	
+	$scope.curdeviceIndex = -1;
 	$scope.curdeviceId = null;
+	$scope.pbFlat = false;
+	$scope.playBack = function(){
+		$scope.pbFlat = true;
+		$scope.Map.playBack($scope.curdeviceId,function(flat){$scope.$apply(function(){$scope.pbFlat = flat})});
+	}
 
 	$http.get("data/getDevices.json")
 		.success(function(response) {
@@ -23,9 +28,10 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http', '$log', function(
 	       		$scope.curdeviceId = row.entity.id;
 	       		$http.get('data/getGpsDatas.json').
 					success(function(data) {
+						$scope.Map.clearOverlays();
+						$scope.pbFlat = false;
 						$scope.Map.addVerhicle(data);
-						$scope.Map.showPath($scope.curdeviceId);
-						$log.log($scope.Map.vehicles);
+						$scope.curdeviceIndex = $scope.Map.showPath($scope.curdeviceId);
 					});
 	        });
        	}

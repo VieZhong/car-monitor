@@ -1,3 +1,4 @@
+var animating = null;  //动画setimeout
 var BaiduMap = function(idName){
 
 	this.map = new BMap.Map(idName);
@@ -9,6 +10,11 @@ var BaiduMap = function(idName){
 	    this.map.centerAndZoom(this.centerPoint, this.zoom);
 	    this.map.enableScrollWheelZoom(true);  
 		this.map.addControl(new BMap.NavigationControl({type: BMAP_NAVIGATION_CONTROL_LARGE}));
+	}
+
+	this.clearOverlays = function(){
+		animating && clearTimeout(animating);
+		this.map.clearOverlays();
 	}
 
 	this.addVerhicle = function(newVehicle){
@@ -31,16 +37,17 @@ var BaiduMap = function(idName){
 		for(var i=this.vehicles.length-1;i>=0;i--){
 			if(id==this.vehicles[i].id){
 				this.vehicles[i].drawPath();
-				break;
+				return i;
 			}
 		}
+		return -1;
 	}
 
-	this.playBack = function(id){
+	this.playBack = function(id,callback){
 		
 		for(var i=this.vehicles.length-1;i>=0;i--){
 			if(id==this.vehicles[i].id){
-				this.vehicles[i].playBack();
+				this.vehicles[i].playBack(callback);
 				break;
 			}
 		}
@@ -61,6 +68,7 @@ var vehicle = function(_map,newVehicle){
 	this.path = null;
 	this.animatedPathArray = [];
 	this.carMk = new BMap.Marker(this.map.centerPoint,{icon:new BMap.Icon("image/car.png", new BMap.Size(52, 26))});
+	this.pbFlat = false;
 
 	this.pointArray = function(loc){				
 		this.pointArray = [];
@@ -94,34 +102,38 @@ var vehicle = function(_map,newVehicle){
 	
 	}
 
-	this.playBack = function(){
+	this.playBack = function(callback){
+		this.pbFlat = true;
 		this.map.setViewport(this.pointArray);
-		this.drawAnimatedLines(this.map,this.pointArray,"blue",this.carMk);
+		this.drawAnimatedLines(this.map,this.pointArray,"blue",this.carMk,callback);
 	}
 
-	this.drawAnimatedLines = function(map,p_arr,lineColor,carMk){
+	this.drawAnimatedLines = function(map,p_arr,lineColor,carMk,callback){
         var i=0, pathArray = [];
 
         for(var j=this.animatedPathArray.length-1;j>=0;j--){
         	this.map.removeOverlay(this.animatedPathArray[j]);
         }
         
-        drawPolyLine(p_arr[i],p_arr[i+1]);
+        drawPolyLine(p_arr[i],p_arr[i+1],this,callback);
         this.animatedPathArray = pathArray;
 
-        function drawPolyLine(p_begin,p_end){
-            var animating = null;
+        function drawPolyLine(p_begin,p_end,this_vehicle,callback){
             var lng_len = p_end.lng - p_begin.lng,
             lat_len = p_end.lat - p_begin.lat,
             iv = 0, s = 30, p_old = p_begin; 		 
             line();
+
             function line(){
                 if(iv>s){
                     clearTimeout(animating);
                     animating = null;
                     i++;
                     if( i < p_arr.length-1){
-                        drawPolyLine(p_arr[i],p_arr[i+1]);
+                        drawPolyLine(p_arr[i],p_arr[i+1],this_vehicle,callback);                       
+                    }else{
+                    	this_vehicle.pbFlat = false;
+                    	callback(this_vehicle.pbFlat);
                     }
                 }else{
                     var p_crr = new BMap.Point( p_old.lng+lng_len/s , p_old.lat+lat_len/s );
