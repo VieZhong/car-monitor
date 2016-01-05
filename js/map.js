@@ -21,7 +21,7 @@ var BaiduMap = function(idName){
 			}
 		}
 		if(isExist){
-			this.vehicles[i] = new vehicle(this.map,newVehicle);
+			this.vehicles[i].updateData(newVehicle);
 		}else{
 			this.vehicles.push(new vehicle(this.map,newVehicle));
 		}
@@ -70,6 +70,14 @@ var vehicle = function(_map,newVehicle){
 	    return this.pointArray;
 	}(this.datas);
 
+	this.updateData = function(newVehicle){
+		this.name = newVehicle.name;
+		this.pointArray = [];
+	    for(var i=0;i<newVehicle.datas.length;i++){
+	        this.pointArray.push(new BMap.Point(newVehicle.datas[i][0],newVehicle.datas[i][1]));
+	    }
+	}
+
 	this.drawPath = function(){
 
 		this.map.setViewport(this.pointArray);
@@ -93,6 +101,7 @@ var vehicle = function(_map,newVehicle){
 
 	this.drawAnimatedLines = function(map,p_arr,lineColor,carMk){
         var i=0, pathArray = [];
+
         for(var j=this.animatedPathArray.length-1;j>=0;j--){
         	this.map.removeOverlay(this.animatedPathArray[j]);
         }
