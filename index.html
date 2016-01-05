@@ -1,133 +1,49 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>简单的demo</title>
-    <style type="text/css">
-        *{
-            margin: 0 auto;
-            padding: 0;
-        }
-        #baidu_map{
-            width: 80%;
-            height: 700px;
-        }
-        button{
-            position: absolute;
-            top:200px;
-            left: 20px;
-            width: 66px;
-            height: 40px;
-        }
-        #test{
-            position: absolute;
-            top:300px;
-            left: 20px;
-        }
-    </style>
-</head>
-<body>
-    <button onclick="playBack()">点击播放</button>
-    <div id="baidu_map"></div>
-    <div id="test"><div>
-</body>
-<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=RBMT4U5cY8KTuIXyXb0ENDuB"></script>
-<script type="text/javascript">
-    
-    function playBack(){
-        drawAnimatedLines(p,"blue");
-    }
-
-    function drawAnimatedLines(p_arr,color){
-        var i=0, flickering = null;
-        drawAnimatedLine(p_arr[i],p_arr[i+1],color);
+<html ng-app="monitorApp">
+    <head>
+        <meta charset="utf-8">
+        <title>车辆行驶监控系统</title>
         
-
-        function drawAnimatedLine(p_begin,p_end,color){
-            var animating = null;
-            var lng_len = p_end.lng - p_begin.lng,
-            lat_len = p_end.lat - p_begin.lat,
-            iv = 0,
-            s = 30;
-            line();
-            function line(){
-                if(iv>s){
-                    clearTimeout(animating);
-                    animating = null;
-                    i++;
-                    if( i < p_arr.length-1){
-                        drawAnimatedLine(p_arr[i],p_arr[i+1],color);
-                    }
-                }else{
-                    var p_temp = new BMap.Point( p_begin.lng+lng_len*iv/s , p_begin.lat+lat_len*iv/s );
-                    var line = new BMap.Polyline([p_begin,p_temp]);
-                    line.setStrokeColor(color);
-                    map.addOverlay(line);
-                    carMk.setPosition(p_temp);
-                    carMk.setRotation(90);
-                    var distance = map.getDistance(centerPoint, p_temp);
-                    if(distance>4200){
-                        circle.setFillColor("blue");
-                        circle.setFillOpacity(0.3);
-                        flickering && clearInterval(flickering);
-                        flickering = null;
-                    }else{
-                        if(!flickering){
-                            flickering = setInterval("circle.getFillColor()=='red'? circle.setFillColor('blue'):circle.setFillColor('red');",600);
-                            circle.setFillColor('red');
-                            circle.setFillOpacity(0.5);
-                        }
-                    }
-                    iv++;
-                    animating = setTimeout(arguments.callee, 40);
-                }
-            }   
-        }
-    }
-
-    var map = new BMap.Map("baidu_map");
-    var centerPoint = new BMap.Point((116.125021+116.129702)/2, (38.708999+38.842078)/2);
-    map.centerAndZoom(centerPoint, 13);
-    map.enableScrollWheelZoom(true);
-
-    var p = [], infoWindow = [];
-    var loc = [[116.125021,38.708999],[116.125053,38.723754],[116.125541,38.728696],[116.126367,38.740296],[116.126664,38.745510],[116.127038,38.751877],[116.127146,38.764280],[116.130496,38.793855],[116.130592,38.809331],[116.130240,38.831536],[116.129702,38.842078]];
-
-    for(var i=0;i<loc.length;i++){
-        p.push(new BMap.Point(loc[i][0],loc[i][1]));
-    }
-    
-
-    for(var i=0;i<p.length;i++) ~function(){
-        var marker = new BMap.Marker(p[i]);
-        map.addOverlay(marker);              // 将标注添加到地图中
-        var opts = {
-            width : 160,     // 信息窗口宽度
-            height: 80,     // 信息窗口高度
-            title : "途径地点"+i , // 信息窗口标题
-            enableMessage:true,//设置允许信息窗发送短息
-            message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~"
-        }
-
-        var point = p[i];
-        var speed = i*10;
-        marker.addEventListener("click", function(){
-            map.openInfoWindow(new BMap.InfoWindow("当前时速："+speed+"km/h", opts),point); //开启信息窗口
-        });
-
-    }()
-
-    var myIcon = new BMap.Icon("images/car.png", new BMap.Size(52, 26), {    //小车图片
-        //offset: new BMap.Size(0, -5),    //相当于CSS精灵
-        imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
-    });
-    var carMk = new BMap.Marker(p[0],{icon:myIcon});
-    map.addOverlay(carMk);
-
-    var circle = new BMap.Circle(centerPoint,4200,{fillColor:"blue", strokeWeight: 1 ,fillOpacity: 0.3, strokeOpacity: 0.3});
-    map.addOverlay(circle);
-
-    var opts = {type: BMAP_NAVIGATION_CONTROL_LARGE}    
-    map.addControl(new BMap.NavigationControl(opts));
-
-</script>
+        <link rel="stylesheet" type="text/css" href="framework\Bootstrap\css\bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="framework\ui-grid.min.css">
+        <link rel="stylesheet" type="text/css" href="css\moniter.css">
+        
+        <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=RBMT4U5cY8KTuIXyXb0ENDuB"></script>
+        <script type="text/javascript" src="framework\Jquery\jquery.min.js"></script>
+        <script type="text/javascript" src="framework\Angular\angular.js"></script>
+        <script type="text/javascript" src="framework\Angular\angular-animate.js"></script>
+        <script type="text/javascript" src="framework\angular-ui-router.min.js"></script>
+        <script type="text/javascript" src="framework\ui-bootstrap-tpls.min.js"></script>
+        <script type="text/javascript" src="framework\ui-grid.min.js"></script>
+        <script type="text/javascript" src="js\map.js"></script>
+        <script type="text/javascript" src="js\controllers.js"></script>
+        <script type="text/javascript" src="js\directives.js"></script>
+        <script type="text/javascript" src="js\monitor.js"></script>
+        
+    </head> 
+    <body>
+        <div class="container-fluid">
+            <div class="row head">
+                <div class="col-xs-4 head-logo rightBorder">
+                    <div>车辆行驶监控系统</div>
+                </div>
+                <div class="col-xs-6 col-xs-offset-1">
+                    <div class="col-xs-3 head-nav rightBorder">
+                        <a ui-sref="PositionMonitor">定位监控</a> 
+                    </div>
+                    <div class="col-xs-3 head-nav rightBorder">
+                        <a ui-sref="Statistics">统计报表</a> 
+                    </div>
+                    <div class="col-xs-3 head-nav ">
+                        <a ui-sref="DeviceManagement">设备管理</a> 
+                    </div>
+                </div>  
+            </div>
+            
+            <!-- body part -->
+            <ui-view></ui-view>
+            
+        </div>
+    </body>
+   
 </html>

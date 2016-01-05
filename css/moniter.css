@@ -1,0 +1,44 @@
+*{
+	padding: 0;
+	margin: 0;
+}
+
+a:link, a:hover, a:active, a:visited{
+	text-decoration: none;
+}
+
+/*head part*/
+.head{
+	height: 120px;
+	background: blue;
+	text-align: center;
+	color: white;
+}
+
+.head-logo{
+	line-height: 120px;
+	font-size: 24px;
+}
+
+.rightBorder{
+	border-right: 1px white solid;
+}
+
+.head-nav{
+	margin: 40px auto;
+	line-height: 40px;
+}
+
+.head-nav a{
+	color: white;
+}
+
+/*body part*/
+#controller{
+	margin: 20px auto 4px;
+}
+
+#baidu_map{	
+	width: 100%;
+	height: 500px;
+}
