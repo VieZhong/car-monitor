@@ -104,6 +104,7 @@ var vehicle = function(_map,newVehicle,type){
 	this.pbFlat = false;
 	this.pbIndex = 0;
 	this.pbStayTimes = 0;
+	this.stayMkArray = [];
 
 	this.curData = function(newVehicle,type){
 		if(type==0){
@@ -179,7 +180,7 @@ var vehicle = function(_map,newVehicle,type){
 		this.map.addOverlay(this.path);
 
 		this.carMk.setPosition(this.pointArray[0]);
-        this.carMk.setRotation(-90);
+        this.carMk.setRotation(135);
 		this.map.addOverlay(this.carMk);
 	
 	}
@@ -193,6 +194,11 @@ var vehicle = function(_map,newVehicle,type){
 	        	this.map.removeOverlay(this.animatedPathArray[j]);
 	        }
 			this.animatedPathArray = [];
+
+			for(var j=this.stayMkArray.length-1;j>=0;j--){
+	        	this.map.removeOverlay(this.stayMkArray[j]);
+	        }
+	        this.stayMkArray = [];
 		}
 		this.carMk.setZIndex(999);
 		this.drawAnimatedLines("blue",callback);
@@ -205,10 +211,15 @@ var vehicle = function(_map,newVehicle,type){
         }
         this.animatedPathArray = [];
 
+        for(var j=this.stayMkArray.length-1;j>=0;j--){
+        	this.map.removeOverlay(this.stayMkArray[j]);
+        }
+        this.stayMkArray = [];
+
         this.pbIndex = 0;
 
         this.carMk.setPosition(this.pointArray[0]);
-        this.carMk.setRotation(-90);
+        this.carMk.setRotation(135);
 	}
 
 	this.pausePlayBack = function(){
@@ -225,8 +236,8 @@ var vehicle = function(_map,newVehicle,type){
             iv = 0, s = 6, p_old = p_begin; 
 
             //判断是否停留
-            if(this_vehicle.pbStayTimes == 0 ){		            
-	            while(this_vehicle.datas[this_vehicle.pbIndex+this_vehicle.pbStayTimes][2]<1){	            	
+            if(this_vehicle.pbStayTimes == 0){		            
+	            while(this_vehicle.pbIndex+this_vehicle.pbStayTimes < this_vehicle.datas.length-1 && this_vehicle.datas[this_vehicle.pbIndex+this_vehicle.pbStayTimes][2]<1){	            	
 	            	this_vehicle.pbStayTimes++;
 	            }
 	            if(this_vehicle.pbStayTimes>4){
@@ -234,14 +245,12 @@ var vehicle = function(_map,newVehicle,type){
 						anchor: new BMap.Size(20, 50)
 	  				})});
 	            	this_vehicle.map.addOverlay(stayMk);
-	            	console.log(this_vehicle.pbStayTimes);
+	            	this_vehicle.stayMkArray.push(stayMk);
 	            }
 
 	        }else{
 	        	this_vehicle.pbStayTimes--;
 	        }
-
-
 
             line();
 
@@ -263,7 +272,7 @@ var vehicle = function(_map,newVehicle,type){
                     this_vehicle.map.addOverlay(sline);
                     
                     this_vehicle.carMk.setPosition(p_crr);
-                    this_vehicle.carMk.setRotation(-90);
+                    this_vehicle.carMk.setRotation(135);
 
 					p_old = p_crr;
                     iv++;
