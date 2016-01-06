@@ -186,8 +186,8 @@ var vehicle = function(_map,newVehicle,type){
 	}
 
 	this.playBack = function(callback){
-		this.pbFlat = true;
-		if(this.pbIndex == this.pointArray.length-1){
+		
+		if(this.pbIndex == this.pointArray.length-1 && this.pbFlat == false){
 			this.map.setViewport(this.pointArray);
 			this.pbIndex = 0;
 			for(var j=this.animatedPathArray.length-1;j>=0;j--){
@@ -200,6 +200,7 @@ var vehicle = function(_map,newVehicle,type){
 	        }
 	        this.stayMkArray = [];
 		}
+		this.pbFlat = true;
 		this.carMk.setZIndex(999);
 		this.drawAnimatedLines("blue",callback);
 	}

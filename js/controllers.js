@@ -1,6 +1,6 @@
 var monitorCtrls = angular.module('monitorCtrls', ['ui.grid','ui.grid.selection']);
 
-monitorCtrls.controller("positionMonitor", ['$scope', '$http', '$log','$interval', function($scope, $http, $log, $interval) {
+monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval', function($scope, $http, $interval) {
 
 	$scope.curdeviceIndex = -1;
 	$scope.curdeviceId = null;
@@ -14,6 +14,11 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http', '$log','$interval
 			$scope.pageActive = true;
 			$scope.getLastData();
 			$scope.updateLastData();
+			/*为了防止切换至回放页面时，回放从中间段开始*/
+			if($scope.curdeviceIndex >= 0){
+				$scope.Map.vehicles[$scope.curdeviceIndex].pbFlat = false;
+				$scope.Map.vehicles[$scope.curdeviceIndex].pbIndex = $scope.Map.vehicles[$scope.curdeviceIndex].pointArray.length-1;
+			}
 		}
 	}
 	
@@ -61,10 +66,8 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http', '$log','$interval
 	}
 
 	$scope.beginPlayBack = function(){
-		
 		$scope.pbFlat = 'Begin';
-		$scope.Map.beginPlayBack($scope.curdeviceId,function(flat){$scope.$apply(function(){$scope.pbFlat = 'Stop';})});
-			
+		$scope.Map.beginPlayBack($scope.curdeviceId,function(flat){$scope.$apply(function(){$scope.pbFlat = 'Stop';})});			
 	}
 
 	$scope.pausePlayBack = function(){
