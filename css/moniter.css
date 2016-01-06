@@ -35,10 +35,19 @@ a:link, a:hover, a:active, a:visited{
 
 /*body part*/
 #controller{
-	margin: 20px auto 4px;
+	margin: 20px auto 0;
+	height: 80px;
+}
+
+.controller-btns{
+	margin-top: 4px;
 }
 
 #baidu_map{	
 	width: 100%;
 	height: 500px;
+}
+
+#deviceList{
+	margin: 20px auto;
 }
