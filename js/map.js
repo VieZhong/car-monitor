@@ -261,11 +261,11 @@ var vehicle = function(_map,newVehicle,pbSpeed,type){
 			// 	}
    //          var infoString = "经度："+this_vehicle.datas[this_vehicle.pbIndex][1]+"<br>纬度："+this_vehicle.datas[this_vehicle.pbIndex][0]+"<br>定位时间："+this_vehicle.datas[this_vehicle.pbIndex][3]+"<br>速度："+this_vehicle.datas[this_vehicle.pbIndex][2]+"km/h";
 			// var rmInWdn = new BMap.InfoWindow(infoString, opts);  // 创建信息窗口对象 
-			
+
             line();
 
             function line(){
-                if(iv>s){
+                if(iv>s-1){
                     clearTimeout(animating);
                     animating = null;
                     this_vehicle.pbIndex++;
