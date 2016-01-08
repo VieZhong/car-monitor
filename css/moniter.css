@@ -8,29 +8,9 @@ a:link, a:hover, a:active, a:visited{
 }
 
 /*head part*/
-.head{
-	height: 120px;
-	background: blue;
-	text-align: center;
-	color: white;
-}
-
-.head-logo{
-	line-height: 120px;
-	font-size: 24px;
-}
-
-.rightBorder{
-	border-right: 1px white solid;
-}
-
-.head-nav{
-	margin: 40px auto;
-	line-height: 40px;
-}
-
-.head-nav a{
-	color: white;
+.loginButton{
+	position:absolute !important;
+	right:5px;
 }
 
 /*body part*/
@@ -39,8 +19,21 @@ a:link, a:hover, a:active, a:visited{
 	height: 80px;
 }
 
+.topMar{
+	margin-top: 8px;
+	text-align: center;
+}
+
 .controller-btns{
 	margin-top: 4px;
+	position:absolute;
+	right:20px;
+}
+
+.slider-container{
+	display: inline-block;
+	position: relative;
+	top: -6px;
 }
 
 #baidu_map{	

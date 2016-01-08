@@ -1,6 +1,6 @@
 var monitorCtrls = angular.module('monitorCtrls', ['ui.grid','ui.grid.selection']);
 
-monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval', function($scope, $http, $interval) {
+monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval','$filter', function($scope, $http, $interval,$filter) {
 
 	$scope.curdeviceIndex = -1;
 	$scope.curdeviceId = null;
@@ -8,17 +8,31 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval', funct
 	$scope.pageActive = true;
 	$scope.realTimeInfo = "请选择一辆设备"
 	$scope.getDataStatus;
+	$scope.bgnTime = $filter('date')(new Date(), 'yyyy-MM-dd HH:mm');
+	$scope.endTime = $filter('date')(new Date(), 'yyyy-MM-dd HH:mm');
+	$scope.pbSpeed = 90;
+
+	$scope.updatePBSpeed = function(speedLevel){
+		$scope.pbSpeed = (240 - speedLevel * 50)>0 ? 240 - speedLevel * 50 : 10;
+		if($scope.curdeviceIndex >= 0){
+			$scope.Map.vehicles[$scope.curdeviceIndex].pbSpeed = $scope.pbSpeed;
+		}
+	}
 
 	$scope.openRMPage = function(){
 		if(!$scope.pageActive){
 			$scope.pageActive = true;
 			$scope.getLastData();
 			$scope.updateLastData();
-			/*为了防止切换至回放页面时，回放从中间段开始*/
-			if($scope.curdeviceIndex >= 0){
-				$scope.Map.vehicles[$scope.curdeviceIndex].pbFlat = false;
-				$scope.Map.vehicles[$scope.curdeviceIndex].pbIndex = $scope.Map.vehicles[$scope.curdeviceIndex].pointArray.length-1;
-			}
+			$scope.clearPBData();
+		}
+	}
+
+	$scope.clearPBData = function(){
+		/*为了防止切换至回放页面时，回放从中间段开始*/
+		if($scope.curdeviceIndex >= 0){
+			$scope.Map.vehicles[$scope.curdeviceIndex].pbFlat = false;
+			$scope.Map.vehicles[$scope.curdeviceIndex].pbIndex = $scope.Map.vehicles[$scope.curdeviceIndex].pointArray.length-1;
 		}
 	}
 	
@@ -28,7 +42,7 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval', funct
 				$scope.realTimeInfo = "状态："+data.status+"；定位时间："+data.deviceUtcDate+"；速度："+data.speed+"km/h"
 				$scope.Map.clearOverlays();
 				$scope.pbFlat = 'Stop';
-				$scope.Map.addVerhicle(data,0);
+				$scope.Map.addVerhicle(data,$scope.pbSpeed,0);
 				$scope.curdeviceIndex = $scope.Map.showPosition($scope.curdeviceId);
 			});
 	}
@@ -60,7 +74,7 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval', funct
 			success(function(data) {
 				$scope.Map.clearOverlays();
 				$scope.pbFlat = 'Stop';
-				$scope.Map.addVerhicle(data,1);
+				$scope.Map.addVerhicle(data,$scope.pbSpeed,1);
 				$scope.curdeviceIndex = $scope.Map.showPath($scope.curdeviceId);
 			});
 	}
@@ -97,9 +111,11 @@ monitorCtrls.controller("positionMonitor", ['$scope', '$http','$interval', funct
 	       	gridApi.selection.on.rowSelectionChanged($scope,function(row){
 	       		$scope.curdeviceId = row.entity.id;
 				if($scope.pageActive){
+					$scope.clearPBData();
 					$scope.getLastData();
-					$scope.updateLastData();	
+					$scope.updateLastData();						
 				}else{
+					$scope.clearPBData();
 					$scope.stopGetData();
 					$scope.getGpsDatas();	
 				}

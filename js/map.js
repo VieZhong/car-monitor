@@ -17,7 +17,7 @@ var BaiduMap = function(idName){
 		this.map.clearOverlays();
 	}
 
-	this.addVerhicle = function(newVehicle,type){
+	this.addVerhicle = function(newVehicle,pbSpeed,type){
 		var isExist = false;
 		var i;
 		for(i=this.vehicles.length-1;i>=0;i--){
@@ -27,9 +27,9 @@ var BaiduMap = function(idName){
 			}
 		}
 		if(isExist){
-			this.vehicles[i].updateData(newVehicle,type);
+			this.vehicles[i].updateData(newVehicle,pbSpeed,type);
 		}else{
-			this.vehicles.push(new vehicle(this.map,newVehicle,type));
+			this.vehicles.push(new vehicle(this.map,newVehicle,pbSpeed,type));
 		}
 	}
 
@@ -92,7 +92,7 @@ var BaiduMap = function(idName){
 }
 
 
-var vehicle = function(_map,newVehicle,type){
+var vehicle = function(_map,newVehicle,pbSpeed,type){
 	this.map = _map;
 	this.name = newVehicle.name;
 	this.id = newVehicle.id;	
@@ -105,6 +105,7 @@ var vehicle = function(_map,newVehicle,type){
 	this.pbIndex = 0;
 	this.pbStayTimes = 0;
 	this.stayMkArray = [];
+	this.pbSpeed = pbSpeed;
 
 	this.curData = function(newVehicle,type){
 		if(type==0){
@@ -126,14 +127,14 @@ var vehicle = function(_map,newVehicle,type){
 		    for(var i=0;i<loc.length;i++){
 		        pointArray.push(new BMap.Point(loc[i][1],loc[i][0]));
 		    }
-		    console.log(pointArray);
 		    return pointArray;
 		}
 	    return [];
 	}(this.datas,type);
 
-	this.updateData = function(newVehicle,type){
+	this.updateData = function(newVehicle,pbSpeed,type){
 		this.name = newVehicle.name;
+		this.pbSpeed = pbSpeed;
 		if(type==1){
 			this.pointArray = [];
 		    for(var i=0;i<newVehicle.datas.length;i++){
@@ -253,6 +254,14 @@ var vehicle = function(_map,newVehicle,type){
 	        	this_vehicle.pbStayTimes--;
 	        }
 
+	  //       var opts = {
+			// 		width : 180,     // 信息窗口宽度
+			// 		height: 120,     // 信息窗口高度
+			// 		title : this_vehicle.name
+			// 	}
+   //          var infoString = "经度："+this_vehicle.datas[this_vehicle.pbIndex][1]+"<br>纬度："+this_vehicle.datas[this_vehicle.pbIndex][0]+"<br>定位时间："+this_vehicle.datas[this_vehicle.pbIndex][3]+"<br>速度："+this_vehicle.datas[this_vehicle.pbIndex][2]+"km/h";
+			// var rmInWdn = new BMap.InfoWindow(infoString, opts);  // 创建信息窗口对象 
+			
             line();
 
             function line(){
@@ -261,10 +270,12 @@ var vehicle = function(_map,newVehicle,type){
                     animating = null;
                     this_vehicle.pbIndex++;
                     if( this_vehicle.pbIndex < this_vehicle.pointArray.length-1){
+                    	//this_vehicle.map.closeInfoWindow();
                         drawPolyLine(this_vehicle.pointArray[this_vehicle.pbIndex],this_vehicle.pointArray[this_vehicle.pbIndex+1],this_vehicle,callback);                       
                     }else{
-                    	this_vehicle.pbFlat = false;
-                    	callback(this_vehicle.pbFlat);
+                    	this_vehicle.pbFlat = false; 
+						//this_vehicle.map.openInfoWindow(rmInWdn,this_vehicle.pointArray[this_vehicle.pbIndex]); //开启信息窗口
+                    	callback(this_vehicle.pbFlat);          	
                     }
                 }else{
                     var p_crr = new BMap.Point( p_old.lng+lng_len/s , p_old.lat+lat_len/s );
@@ -274,10 +285,13 @@ var vehicle = function(_map,newVehicle,type){
                     
                     this_vehicle.carMk.setPosition(p_crr);
                     this_vehicle.carMk.setRotation(135);
+    				
+    		// 		if(iv==0||iv==3)
+						// this_vehicle.map.openInfoWindow(rmInWdn,p_crr); //开启信息窗口
 
 					p_old = p_crr;
                     iv++;
-                    animating = setTimeout(arguments.callee, 40);
+                    animating = setTimeout(arguments.callee, this_vehicle.pbSpeed);
                 }
             }   
         }

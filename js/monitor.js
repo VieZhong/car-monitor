@@ -19,5 +19,9 @@ monitor.config(function($stateProvider, $urlRouterProvider){
 			templateUrl: "tpls/DeviceManagement.html",
 			controller: 'deviceManagement'
 		})
+		.state("Login",{
+			url: "/Login",
+			templateUrl: "tpls/Login.html"
+		})
 });
 
